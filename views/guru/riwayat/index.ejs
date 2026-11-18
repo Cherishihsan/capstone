@@ -1,0 +1,65 @@
+<div class="card">
+  <h2>Riwayat Absensi</h2>
+  <form method="GET" action="" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end;">
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Tanggal Mulai</label>
+      <input type="date" name="startDate" class="form-control" value="<%= filters?.startDate || '' %>">
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Tanggal Akhir</label>
+      <input type="date" name="endDate" class="form-control" value="<%= filters?.endDate || '' %>">
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Pencarian (Kelas/Mapel)</label>
+      <input type="text" name="search" class="form-control" placeholder="Cari..." value="<%= filters?.search || '' %>">
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Kelas</th>
+          <th>Mata Pelajaran</th>
+          <th>Total Murid</th>
+          <th>H/I/S/A/T</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (riwayat && riwayat.length > 0) { %>
+          <% riwayat.forEach(item => { %>
+          <tr>
+            <td><%= item.tanggal %></td>
+            <td><%= item.kelasNama %></td>
+            <td><%= item.mapelNama %></td>
+            <td><%= item.totalMurid %></td>
+            <td>
+              <span class="badge badge-hadir" title="Hadir"><%= item.hadir %></span>
+              <span class="badge badge-izin" title="Izin"><%= item.izin %></span>
+              <span class="badge badge-sakit" title="Sakit"><%= item.sakit %></span>
+              <span class="badge badge-alpa" title="Alpa"><%= item.alpa %></span>
+              <span class="badge badge-terlambat" title="Terlambat"><%= item.terlambat %></span>
+            </td>
+            <td>
+              <a href="/guru/riwayat/detail?kelas_id=<%= item.kelasId %>&mapel_id=<%= item.mapelId %>&tanggal=<%= item.tanggal %>" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.9em;">Detail</a>
+            </td>
+          </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" style="text-align: center;">Data tidak ditemukan.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <%- include('../../partials/pagination', { baseUrl: '/guru/riwayat', currentPage: currentPage || 1, totalPages: totalPages || 1 }) %>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

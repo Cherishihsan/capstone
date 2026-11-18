@@ -155,3 +155,6 @@ vite.config.ts.timestamp-*
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
+
+# Storage PDF Raport
+storage/rapor/*.pdf

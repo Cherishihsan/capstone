@@ -1,0 +1,10 @@
+<div class="max-w-xl mx-auto my-16 p-8 bg-white rounded-xl shadow-sm border border-slate-200 text-center space-y-4">
+  <div class="w-12 h-12 mx-auto rounded-full bg-red-100 text-red-700 flex items-center justify-center">
+    <span class="material-symbols-outlined text-[24px]">warning</span>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-900">500 — Terjadi Kesalahan Server</h2>
+  <p class="text-sm text-slate-600"><%= typeof message !== 'undefined' ? message : 'Terjadi kesalahan internal saat memproses permintaan Anda.' %></p>
+  <div class="pt-2">
+    <a href="/dashboard" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Kembali ke Dashboard</a>
+  </div>
+</div>

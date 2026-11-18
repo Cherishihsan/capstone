@@ -1,0 +1,290 @@
+<%
+  const r = (data && data.ringkasan) ? data.ringkasan : {
+    total_siswa: 10,
+    total_guru: 2,
+    total_kelas: 2,
+    total_mata_pelajaran: 3,
+    rapor_terunggah: 2,
+    rapor_belum_lengkap: 8,
+    notifikasi_email_gagal: 0,
+    persentase_nilai: '78.2'
+  };
+  const semLabel = data && data.semester_aktif ? `${data.semester_aktif.semester} ${data.semester_aktif.tahun_ajaran}` : 'Ganjil 2026/2027';
+  const pctRapor = r.total_siswa > 0 ? ((r.rapor_terunggah / r.total_siswa) * 100).toFixed(1) : '0.0';
+%>
+<div class="flex flex-col w-full">
+  <div class="px-gutter-desktop py-space-xl max-w-7xl mx-auto w-full flex flex-col gap-space-xl">
+    <!-- Top Greeting & Header Bar -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
+      <div class="flex flex-col gap-space-xs">
+        <div class="flex items-center gap-space-xs">
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Ringkasan Operasional</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+          <span class="font-label-sm text-label-sm text-text-muted">Tata Usaha</span>
+        </div>
+        <h1 class="font-headline-xl text-headline-xl text-text-primary tracking-tight">Dashboard Administrator &amp; Tata Usaha</h1>
+        <p class="font-body-md text-body-md text-text-muted">Monitoring Periode Penilaian Semester <%= semLabel %></p>
+      </div>
+      <div class="flex flex-wrap items-center gap-space-sm">
+        <a href="/admin/master?tab=guru" class="inline-flex items-center justify-center gap-space-xs px-4 py-2 rounded-xl bg-surface-card text-text-primary shadow-sm border border-slate-200 hover:bg-emerald-50 hover:text-[#005338] transition-colors font-label-md text-label-md">
+          <span class="material-symbols-outlined text-[18px]">badge</span>
+          <span>Data Guru</span>
+        </a>
+        <a href="/admin/master?tab=mapel" class="inline-flex items-center justify-center gap-space-xs px-4 py-2 rounded-xl bg-surface-card text-text-primary shadow-sm border border-slate-200 hover:bg-emerald-50 hover:text-[#005338] transition-colors font-label-md text-label-md">
+          <span class="material-symbols-outlined text-[18px]">menu_book</span>
+          <span>Data Mapel</span>
+        </a>
+        <a href="/admin/master?tab=semester" class="inline-flex items-center justify-center gap-space-xs px-4 py-2 rounded-xl bg-surface-card text-text-primary shadow-sm border border-slate-200 hover:bg-emerald-50 hover:text-[#005338] transition-colors font-label-md text-label-md">
+          <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          <span>Data Semester</span>
+        </a>
+        <a href="/laporan/absensi.xlsx" class="inline-flex items-center justify-center gap-space-xs px-space-lg py-2 rounded-xl bg-primary-container text-on-primary shadow-sm hover:bg-primary transition-colors font-label-md text-label-md">
+          <span class="material-symbols-outlined text-[18px]">file_download</span>
+          <span>Ekspor Data Sekolah</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Bar Tombol Pintasan Cepat Data Master Terpisah -->
+    <div class="bg-surface-card p-space-md rounded-xl shadow-sm border border-slate-100 flex flex-col gap-space-sm">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-label-sm uppercase tracking-wider text-text-muted font-bold">Pintasan Cepat Modul Data Master</span>
+        <span class="font-body-sm text-body-sm text-text-muted">Pilih modul data master yang ingin dikelola</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        <a href="/admin/master?tab=guru" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">badge</span>
+          <span>Data Guru</span>
+        </a>
+        <a href="/admin/master?tab=siswa" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">groups</span>
+          <span>Data Siswa</span>
+        </a>
+        <a href="/admin/master?tab=kelas" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">meeting_room</span>
+          <span>Data Kelas</span>
+        </a>
+        <a href="/admin/master?tab=mapel" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">menu_book</span>
+          <span>Data Mapel</span>
+        </a>
+        <a href="/admin/master?tab=semester" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          <span>Data Semester</span>
+        </a>
+        <a href="/admin/master?tab=ortu" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">family_restroom</span>
+          <span>Data Ortu</span>
+        </a>
+        <a href="/admin/master?tab=penugasan" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">assignment_ind</span>
+          <span>Penugasan</span>
+        </a>
+        <a href="/admin/master?tab=users" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-low hover:bg-[#005338] hover:text-white text-text-primary font-label-md text-label-md transition-colors">
+          <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+          <span>Data Akun</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 3 Core Metrics (High-Impact Minimalist Cards) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+      <!-- Metric 1: Total Siswa -->
+      <div class="bg-surface-card p-space-xl rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="font-label-md text-label-md text-text-muted">Total Siswa Aktif</span>
+          <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-[20px]">groups</span>
+          </div>
+        </div>
+        <div class="mt-space-lg">
+          <div class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight"><%= r.total_siswa %></div>
+          <div class="flex items-center gap-space-xs mt-space-xs">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-status-success-bg text-status-success-text font-label-sm text-label-sm font-semibold"><%= r.total_kelas %> Rombongan Belajar</span>
+            <span class="font-body-sm text-body-sm text-text-muted"><%= r.total_guru %> Guru Aktif</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric 2: Keterisian Nilai -->
+      <div class="bg-surface-card p-space-xl rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="font-label-md text-label-md text-text-muted">Keterisian Ledger Nilai</span>
+          <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-[20px]">fact_check</span>
+          </div>
+        </div>
+        <div class="mt-space-lg">
+          <div class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">78.2%</div>
+          <div class="flex items-center gap-space-xs mt-space-xs">
+            <span class="material-symbols-outlined text-primary text-[16px]">trending_up</span>
+            <span class="font-body-sm text-body-sm text-text-muted"><%= r.total_mata_pelajaran %> Mata Pelajaran Aktif</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric 3: Raport PDF Terunggah -->
+      <div class="bg-surface-card p-space-xl rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="font-label-md text-label-md text-text-muted">Raport PDF Terunggah</span>
+          <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-[20px]">verified</span>
+          </div>
+        </div>
+        <div class="mt-space-lg">
+          <div class="flex items-baseline gap-space-xs">
+            <span class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight"><%= r.rapor_terunggah %></span>
+            <span class="font-headline-md text-headline-md text-text-muted">/ <%= r.total_siswa %></span>
+          </div>
+          <div class="flex items-center gap-space-xs mt-space-xs">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-status-success-bg text-status-success-text font-label-sm text-label-sm font-semibold"><%= pctRapor %>% Dokumen Tersedia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Per Jenjang (Minimal Clean Stack) -->
+    <div class="bg-surface-card p-space-xl rounded-xl shadow-sm border border-slate-100 flex flex-col gap-space-lg">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+        <div>
+          <h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">Progres Keterisian &amp; Rekap per Jenjang</h2>
+          <p class="font-body-sm text-body-sm text-text-muted">Monitoring penginputan nilai dan unggahan dokumen raport PDF oleh wali kelas dan guru mata pelajaran</p>
+        </div>
+        <div class="inline-flex items-center gap-space-md text-body-sm font-body-sm text-text-muted">
+          <div class="flex items-center gap-space-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+            <span>Tercapai</span>
+          </div>
+          <div class="flex items-center gap-space-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-surface-container"></span>
+            <span>Tertunda</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-space-lg mt-space-xs">
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center justify-between font-label-md text-label-md">
+            <div class="flex items-center gap-space-sm">
+              <span class="text-text-primary font-semibold">Tingkat Kelas X</span>
+              <span class="font-body-sm text-body-sm text-text-muted">(<%= r.total_kelas %> Rombel • <%= r.total_siswa %> Siswa)</span>
+            </div>
+            <div class="flex items-center gap-space-md">
+              <span class="px-2 py-0.5 rounded bg-status-success-bg text-status-success-text font-label-sm text-label-sm font-semibold">Aman</span>
+              <span class="font-numeric-table text-numeric-table font-bold text-text-primary">92%</span>
+            </div>
+          </div>
+          <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+            <div class="h-full bg-primary-container rounded-full" style="width: 92%"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center justify-between font-label-md text-label-md">
+            <div class="flex items-center gap-space-sm">
+              <span class="text-text-primary font-semibold">Tingkat Kelas XI</span>
+              <span class="font-body-sm text-body-sm text-text-muted">(Monitoring Semester Aktif)</span>
+            </div>
+            <div class="flex items-center gap-space-md">
+              <span class="px-2 py-0.5 rounded bg-status-warning-bg text-status-warning-text font-label-sm text-label-sm font-semibold">Perlu Perhatian</span>
+              <span class="font-numeric-table text-numeric-table font-bold text-text-primary">76%</span>
+            </div>
+          </div>
+          <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+            <div class="h-full bg-primary-container rounded-full" style="width: 76%"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center justify-between font-label-md text-label-md">
+            <div class="flex items-center gap-space-sm">
+              <span class="text-text-primary font-semibold">Tingkat Kelas XII</span>
+              <span class="font-body-sm text-body-sm text-text-muted">(Persiapan Kelulusan)</span>
+            </div>
+            <div class="flex items-center gap-space-md">
+              <span class="px-2 py-0.5 rounded bg-status-danger-bg text-status-danger-text font-label-sm text-label-sm font-semibold">Tenggat H-3</span>
+              <span class="font-numeric-table text-numeric-table font-bold text-text-primary">68%</span>
+            </div>
+          </div>
+          <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+            <div class="h-full bg-primary-container rounded-full" style="width: 68%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Priority Action Panels -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+      <div class="bg-surface-card p-space-xl rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="flex flex-col gap-space-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-8 h-8 rounded-lg bg-status-warning-bg text-status-warning-text flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">forward_to_inbox</span>
+              </div>
+              <span class="font-headline-md text-headline-md text-text-primary">Notifikasi Email Orang Tua</span>
+            </div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full <%= r.notifikasi_email_gagal > 0 ? 'bg-status-danger-bg text-status-danger-text' : 'bg-status-success-bg text-status-success-text' %> font-label-sm text-label-sm font-semibold">
+              <%= r.notifikasi_email_gagal %> Terkendala
+            </span>
+          </div>
+          <p class="font-body-md text-body-md text-text-secondary mt-space-xs">
+            Notifikasi email otomatis dikirimkan kepada orang tua/wali saat siswa tercatat Tidak Hadir atau dokumen raport PDF baru diunggah.
+          </p>
+        </div>
+        <div class="mt-space-lg flex items-center justify-between pt-space-md">
+          <span class="font-body-sm text-body-sm text-text-muted">Status Antrean: Terpantau</span>
+          <a href="/rapor/monitoring" class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-xl bg-primary-container text-on-primary hover:bg-primary transition-colors font-label-md text-label-md">
+            <span class="material-symbols-outlined text-[18px]">analytics</span>
+            <span>Monitoring Raport</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-surface-card p-space-xl rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="flex flex-col gap-space-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-8 h-8 rounded-lg bg-status-success-bg text-status-success-text flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">sync_saved_locally</span>
+              </div>
+              <span class="font-headline-md text-headline-md text-text-primary">Basis Data Master (13 Tabel)</span>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-success-bg text-status-success-text font-label-sm text-label-sm font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              Terhubung
+            </span>
+          </div>
+          <p class="font-body-md text-body-md text-text-secondary mt-space-xs">
+            Kelola langsung Data Guru, Data Mapel, Data Semester, Data Siswa, dan Penugasan melalui tombol terpisah di bawah ini.
+          </p>
+        </div>
+        <div class="mt-space-lg flex flex-wrap items-center gap-2 pt-space-md">
+          <a href="/admin/master?tab=guru" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-low text-text-primary hover:bg-[#005338] hover:text-white transition-colors font-label-md text-label-md">
+            <span class="material-symbols-outlined text-[16px]">badge</span>
+            <span>Data Guru</span>
+          </a>
+          <a href="/admin/master?tab=mapel" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-low text-text-primary hover:bg-[#005338] hover:text-white transition-colors font-label-md text-label-md">
+            <span class="material-symbols-outlined text-[16px]">menu_book</span>
+            <span>Data Mapel</span>
+          </a>
+          <a href="/admin/master?tab=semester" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-low text-text-primary hover:bg-[#005338] hover:text-white transition-colors font-label-md text-label-md">
+            <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+            <span>Data Semester</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiet Institutional Micro Footer -->
+    <div class="flex flex-col sm:flex-row items-center justify-between text-body-sm font-body-sm text-text-muted py-space-sm border-t border-slate-200">
+      <div class="flex items-center gap-space-xs">
+        <span class="material-symbols-outlined text-[16px] text-primary">verified_user</span>
+        <span>Sistem Informasi Manajemen Nilai, Absensi, dan Dokumen Raport Sekolah (SIMNILAI v3.0)</span>
+      </div>
+      <div>
+        <span>Pusat Kendali Administrasi Akademik • SMAN 1 Nusantara</span>
+      </div>
+    </div>
+  </div>
+</div>

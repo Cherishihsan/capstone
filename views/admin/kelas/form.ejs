@@ -1,0 +1,36 @@
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+  <h2><%= kelas ? 'Edit Kelas' : 'Tambah Kelas' %></h2>
+  
+  <form action="<%= kelas ? `/admin/kelas/${kelas.id}/update` : '/admin/kelas' %>" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    
+    <div class="form-group">
+      <label class="form-label">Nama Kelas</label>
+      <input type="text" name="nama_kelas" class="form-control" value="<%= kelas ? kelas.nama_kelas : '' %>" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Tingkat</label>
+      <select name="tingkat" class="form-control" required>
+        <option value="">Pilih Tingkat</option>
+        <option value="X" <%= (kelas && kelas.tingkat === 'X') ? 'selected' : '' %>>Kelas X</option>
+        <option value="XI" <%= (kelas && kelas.tingkat === 'XI') ? 'selected' : '' %>>Kelas XI</option>
+        <option value="XII" <%= (kelas && kelas.tingkat === 'XII') ? 'selected' : '' %>>Kelas XII</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Tahun Ajaran</label>
+      <input type="text" name="tahun_ajaran" class="form-control" placeholder="Misal: 2023/2024" value="<%= kelas ? kelas.tahun_ajaran : '' %>" required>
+    </div>
+    
+    <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: flex-end;">
+      <a href="/admin/kelas" class="btn btn-secondary">Batal</a>
+      <button type="submit" class="btn btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

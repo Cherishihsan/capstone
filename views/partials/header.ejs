@@ -1,0 +1,52 @@
+<%
+  const roleLabelMap = {
+    admin: 'Administrator & Tata Usaha',
+    guru: 'Guru Mapel & Wali Kelas',
+    siswa: 'Peserta Didik (Siswa)',
+    orang_tua: 'Orang Tua / Wali Murid'
+  };
+  const displayName = user && user.nama ? user.nama : 'Pengguna SIMNILAI';
+  const displayRole = user && user.role ? (roleLabelMap[user.role] || user.role) : 'Sesi Aktif';
+%>
+<header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest border-b border-slate-200 z-40 flex items-center justify-between px-gutter-desktop">
+  <div class="flex items-center gap-space-lg">
+    <div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#005338] font-label-md text-label-md">
+      <span class="material-symbols-outlined text-[#005338] text-[16px]">event_available</span>
+      <span>Semester Aktif: Ganjil 2026/2027</span>
+    </div>
+    <div class="hidden xl:flex items-center gap-space-xs font-body-sm text-body-sm text-slate-500">
+      <span class="material-symbols-outlined text-[16px]">schedule</span>
+      <span id="live-wib-clock">Rabu, 18 Nov 2026 • WIB</span>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-space-lg">
+    <div class="relative flex items-center">
+      <a href="/dashboard" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-on-surface transition-colors relative" title="Notifikasi Sistem">
+        <span class="material-symbols-outlined text-[22px]">notifications</span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error ring-2 ring-white"></span>
+      </a>
+    </div>
+    <div class="flex items-center gap-space-md pl-space-sm">
+      <div class="flex flex-col text-right leading-none">
+        <span class="font-label-md text-label-md text-on-surface"><%= displayName %></span>
+        <span class="font-label-sm text-label-sm text-[#005338] font-semibold mt-1"><%= displayRole %></span>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-[#005338] flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-[18px]">person</span>
+      </div>
+      <a href="/logout" class="p-1.5 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors" title="Keluar Sesi">
+        <span class="material-symbols-outlined text-[20px]">logout</span>
+      </a>
+    </div>
+  </div>
+</header>
+<script>
+  (function() {
+    var el = document.getElementById('live-wib-clock');
+    if (!el) return;
+    var now = new Date();
+    var opts = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+    el.textContent = now.toLocaleDateString('id-ID', opts) + ' WIB';
+  })();
+</script>

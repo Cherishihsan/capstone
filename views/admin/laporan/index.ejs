@@ -1,0 +1,122 @@
+<div class="card">
+  <h2>Laporan Absensi (Admin)</h2>
+  <form method="GET" action="" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end;">
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Tanggal Mulai</label>
+      <input type="date" name="startDate" class="form-control" value="<%= filters?.startDate || '' %>">
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Tanggal Akhir</label>
+      <input type="date" name="endDate" class="form-control" value="<%= filters?.endDate || '' %>">
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Kelas</label>
+      <select name="kelas_id" class="form-control">
+        <option value="">Semua Kelas</option>
+        <% if (typeof kelas !== 'undefined' && kelas) { %>
+          <% kelas.forEach(k => { %>
+            <option value="<%= k.id %>" <%= filters?.kelas_id == k.id ? 'selected' : '' %>><%= k.nama_kelas %></option>
+          <% }) %>
+        <% } %>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Tampilkan Laporan</button>
+  </form>
+
+  <% if (typeof data !== 'undefined' && data && data.length > 0) { %>
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;">
+      <a href="/admin/laporan/export/excel?startDate=<%= filters?.startDate || '' %>&endDate=<%= filters?.endDate || '' %>&kelas_id=<%= filters?.kelas_id || '' %>" class="btn btn-success">⬇️ Export Excel</a>
+      <a href="/admin/laporan/export/pdf?startDate=<%= filters?.startDate || '' %>&endDate=<%= filters?.endDate || '' %>&kelas_id=<%= filters?.kelas_id || '' %>" class="btn btn-danger">⬇️ Export PDF</a>
+    </div>
+
+    <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 300px;">
+        <canvas id="laporanChart"></canvas>
+      </div>
+      <div class="stat-grid" style="flex: 2;">
+        <div class="stat-card badge-hadir">
+          <span class="stat-title">Hadir</span>
+          <span class="stat-value"><%= stats?.hadir || 0 %></span>
+        </div>
+        <div class="stat-card badge-izin">
+          <span class="stat-title">Izin</span>
+          <span class="stat-value"><%= stats?.izin || 0 %></span>
+        </div>
+        <div class="stat-card badge-sakit">
+          <span class="stat-title">Sakit</span>
+          <span class="stat-value"><%= stats?.sakit || 0 %></span>
+        </div>
+        <div class="stat-card badge-alpa">
+          <span class="stat-title">Alpa</span>
+          <span class="stat-value"><%= stats?.alpa || 0 %></span>
+        </div>
+        <div class="stat-card badge-terlambat">
+          <span class="stat-title">Terlambat</span>
+          <span class="stat-value"><%= stats?.terlambat || 0 %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIS</th>
+            <th>Nama Murid</th>
+            <th>Kelas</th>
+            <th>H</th>
+            <th>I</th>
+            <th>S</th>
+            <th>A</th>
+            <th>T</th>
+            <th>Total Kehadiran (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% data.forEach((row, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= row.nis %></td>
+            <td><%= row.nama %></td>
+            <td><%= row.kelas %></td>
+            <td><%= row.h %></td>
+            <td><%= row.i %></td>
+            <td><%= row.s %></td>
+            <td><%= row.a %></td>
+            <td><%= row.t %></td>
+            <td><%= row.persentase %>%</td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('laporanChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Hadir', 'Izin', 'Sakit', 'Alpa', 'Terlambat'],
+            datasets: [{
+              data: [
+                <%= stats?.hadir || 0 %>,
+                <%= stats?.izin || 0 %>,
+                <%= stats?.sakit || 0 %>,
+                <%= stats?.alpa || 0 %>,
+                <%= stats?.terlambat || 0 %>
+              ],
+              backgroundColor: [
+                '#4CAF50', '#2196F3', '#FF9800', '#F44336', '#FFC107'
+              ]
+            }]
+          }
+        });
+      });
+    </script>
+  <% } else if (typeof data !== 'undefined') { %>
+    <p style="text-align: center; margin-top: 20px;">Tidak ada data untuk kriteria tersebut.</p>
+  <% } %>
+</div>

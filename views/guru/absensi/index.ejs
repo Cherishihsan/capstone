@@ -1,0 +1,75 @@
+<div class="absensi-container">
+  <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <div>
+      <h2>Absensi Harian Kelas Binaan</h2>
+      <p>Tanggal: <strong><%= tanggal %></strong> — Satu catatan kehadiran per siswa per hari</p>
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="setSemuaHadir()">Tandai Semua Hadir</button>
+  </div>
+
+  <form action="/absensi" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="id_kelas" value="<%= selectedKelas %>" />
+    <input type="hidden" name="tanggal" value="<%= tanggal %>" />
+
+    <table class="table" style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>NIS</th>
+          <th>Nama Siswa</th>
+          <th>Status Kehadiran</th>
+          <th>Keterangan (Wajib bila Tidak Hadir)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% daftarSiswa.forEach(function(s, idx) { %>
+          <tr>
+            <td><%= idx + 1 %></td>
+            <td><%= s.nis %></td>
+            <td><%= s.nama %></td>
+            <td>
+              <select name="status[<%= s.id_siswa %>]" class="status-select" onchange="toggleKeterangan(this, '<%= s.id_siswa %>')">
+                <option value="hadir" <%= s.status === 'hadir' ? 'selected' : '' %>>Hadir</option>
+                <option value="tidak_hadir" <%= s.status === 'tidak_hadir' ? 'selected' : '' %>>Tidak Hadir</option>
+              </select>
+            </td>
+            <td>
+              <select name="keterangan[<%= s.id_siswa %>]" id="ket_<%= s.id_siswa %>" <%= s.status === 'hadir' ? 'disabled' : '' %>>
+                <option value="">-- Pilih Alasan --</option>
+                <option value="sakit" <%= s.keterangan === 'sakit' ? 'selected' : '' %>>Sakit</option>
+                <option value="izin" <%= s.keterangan === 'izin' ? 'selected' : '' %>>Izin</option>
+                <option value="alpa" <%= s.keterangan === 'alpa' ? 'selected' : '' %>>Alpa</option>
+              </select>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div style="margin-top:1.25rem;">
+      <button type="submit" class="btn btn-primary">Simpan Absensi Harian</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function toggleKeterangan(selectEl, idSiswa) {
+    var ketEl = document.getElementById('ket_' + idSiswa);
+    if (!ketEl) return;
+    if (selectEl.value === 'tidak_hadir') {
+      ketEl.disabled = false;
+      if (!ketEl.value) ketEl.value = 'sakit';
+    } else {
+      ketEl.value = '';
+      ketEl.disabled = true;
+    }
+  }
+
+  function setSemuaHadir() {
+    document.querySelectorAll('.status-select').forEach(function(el) {
+      el.value = 'hadir';
+      el.dispatchEvent(new Event('change'));
+    });
+  }
+</script>

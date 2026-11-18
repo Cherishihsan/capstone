@@ -1,0 +1,35 @@
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+  <h2>Profil Saya</h2>
+  
+  <div style="margin-bottom: 30px;">
+    <p><strong>Nama:</strong> <%= guru?.nama || '-' %></p>
+    <p><strong>NIP:</strong> <%= guru?.nip || '-' %></p>
+    <p><strong>Username:</strong> <%= guru?.user?.username || '-' %></p>
+    <p><strong>Email:</strong> <%= guru?.user?.email || '-' %></p>
+    <p><strong>No. HP:</strong> <%= guru?.nomor_hp || '-' %></p>
+  </div>
+
+  <hr style="margin: 20px 0; border: 1px solid #333;">
+
+  <h3>Ubah Password</h3>
+  <form action="/guru/profil/password" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-group">
+      <label class="form-label">Password Saat Ini</label>
+      <input type="password" name="currentPassword" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password Baru</label>
+      <input type="password" name="newPassword" class="form-control" required minlength="6">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Konfirmasi Password Baru</label>
+      <input type="password" name="confirmPassword" class="form-control" required minlength="6">
+    </div>
+    <button type="submit" class="btn btn-primary">Simpan Password</button>
+  </form>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

@@ -1,0 +1,81 @@
+<div class="card">
+  <h2>Data Seluruh Absensi</h2>
+  <form method="GET" action="" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end;">
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Tanggal</label>
+      <input type="date" name="tanggal" class="form-control" value="<%= filters?.tanggal || '' %>">
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Kelas</label>
+      <select name="kelas_id" class="form-control">
+        <option value="">Semua Kelas</option>
+        <% if (typeof kelasList !== 'undefined') { %>
+          <% kelasList.forEach(k => { %>
+            <option value="<%= k.id %>" <%= filters?.kelas_id == k.id ? 'selected' : '' %>><%= k.nama_kelas %></option>
+          <% }) %>
+        <% } %>
+      </select>
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-control">
+        <option value="">Semua Status</option>
+        <option value="hadir" <%= filters?.status == 'hadir' ? 'selected' : '' %>>Hadir</option>
+        <option value="izin" <%= filters?.status == 'izin' ? 'selected' : '' %>>Izin</option>
+        <option value="sakit" <%= filters?.status == 'sakit' ? 'selected' : '' %>>Sakit</option>
+        <option value="alpa" <%= filters?.status == 'alpa' ? 'selected' : '' %>>Alpa</option>
+        <option value="terlambat" <%= filters?.status == 'terlambat' ? 'selected' : '' %>>Terlambat</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Tanggal</th>
+          <th>Murid</th>
+          <th>Kelas</th>
+          <th>Mapel</th>
+          <th>Guru</th>
+          <th>Status</th>
+          <th>Konfirmasi</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (absensi && absensi.length > 0) { %>
+          <% absensi.forEach((a, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= a.tanggal %></td>
+            <td><%= a.murid ? a.murid.nama : '-' %></td>
+            <td><%= a.kelas ? a.kelas.nama_kelas : '-' %></td>
+            <td><%= a.mapel ? a.mapel.nama_mata_pelajaran : '-' %></td>
+            <td><%= a.guru ? a.guru.nama : '-' %></td>
+            <td><span class="badge badge-<%= a.status %>"><%= a.status %></span></td>
+            <td>
+              <span class="badge <%= a.is_confirmed ? 'badge-hadir' : 'badge-alpa' %>">
+                <%= a.is_confirmed ? 'Ya' : 'Draft' %>
+              </span>
+            </td>
+            <td>
+              <a href="/admin/absensi/<%= a.id %>" class="btn btn-secondary" style="padding: 4px 8px;">Detail</a>
+            </td>
+          </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="9" style="text-align: center;">Tidak ada data.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <%- include('../../partials/pagination', { baseUrl: '/admin/absensi', currentPage: currentPage || 1, totalPages: totalPages || 1 }) %>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

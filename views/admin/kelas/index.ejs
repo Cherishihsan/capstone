@@ -1,0 +1,53 @@
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Kelola Data Kelas</h2>
+    <a href="/admin/kelas/create" class="btn btn-primary">+ Tambah Kelas</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Kelas</th>
+          <th>Tingkat</th>
+          <th>Tahun Ajaran</th>
+          <th>Jumlah Murid</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (classes && classes.length > 0) { %>
+          <% classes.forEach((k, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= k.nama_kelas %></td>
+            <td><%= k.tingkat %></td>
+            <td><%= k.tahun_ajaran %></td>
+            <td><%= k.student_count || 0 %></td>
+            <td>
+              <span class="badge <%= k.is_active ? 'badge-hadir' : 'badge-alpa' %>"><%= k.is_active ? 'Aktif' : 'Nonaktif' %></span>
+            </td>
+            <td>
+              <a href="/admin/kelas/<%= k.id %>/edit" class="btn btn-secondary" style="padding: 4px 8px;">Edit</a>
+              <form action="/admin/kelas/<%= k.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus kelas ini?');">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-danger" style="padding: 4px 8px;">Hapus</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="7" style="text-align: center;">Tidak ada data.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <%- include('../../partials/pagination', { baseUrl: '/admin/kelas', currentPage: currentPage || 1, totalPages: totalPages || 1 }) %>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

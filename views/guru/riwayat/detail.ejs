@@ -1,0 +1,67 @@
+<div class="card" style="margin-bottom: 20px;">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Detail Absensi</h2>
+    <a href="/guru/riwayat" class="btn btn-secondary">Kembali</a>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+    <div><strong>Kelas:</strong> <%= kelasNama %></div>
+    <div><strong>Tanggal:</strong> <%= tanggal %></div>
+    <div><strong>Mata Pelajaran:</strong> <%= mapelNama %></div>
+    <div><strong>Guru:</strong> <%= guruNama %></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>NIS</th>
+          <th>Nama</th>
+          <th>Status Kehadiran</th>
+          <th>Keterangan</th>
+          <th>Status WA Orang Tua</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (absensiList && absensiList.length > 0) { %>
+          <% absensiList.forEach((abs, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= abs.murid ? abs.murid.nis : '-' %></td>
+            <td><%= abs.murid ? abs.murid.nama : '-' %></td>
+            <td><span class="badge badge-<%= abs.status %>"><%= abs.status %></span></td>
+            <td><%= abs.keterangan || '-' %></td>
+            <td>
+              <% if (abs.status !== 'hadir') { %>
+                <% if (abs.whatsapp_notification) { %>
+                  <span class="badge badge-<%= abs.whatsapp_notification.status === 'sent' ? 'hadir' : (abs.whatsapp_notification.status === 'failed' ? 'alpa' : (abs.whatsapp_notification.status === 'pending' ? 'terlambat' : 'secondary')) %>">
+                    <%= abs.whatsapp_notification.status %>
+                  </span>
+                  <% if (abs.whatsapp_notification.status === 'failed') { %>
+                    <form action="/guru/whatsapp/resend/<%= abs.whatsapp_notification.id %>" method="POST" style="display:inline; margin-left: 5px;">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.8em;">Kirim Ulang</button>
+                    </form>
+                  <% } %>
+                <% } else { %>
+                  <span class="badge" style="background:#888;">No Data</span>
+                <% } %>
+              <% } else { %>
+                <span style="color: #888; font-size: 0.9em;">Tidak dikirim (Hadir)</span>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="6" style="text-align: center;">Tidak ada data.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

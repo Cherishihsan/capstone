@@ -1,0 +1,85 @@
+<div class="card" style="max-width: 800px; margin: 0 auto; margin-bottom: 20px;">
+  <h2>Pengaturan Sekolah</h2>
+  <form action="/admin/settings/school" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="form-group">
+      <label class="form-label">Nama Sekolah</label>
+      <input type="text" name="schoolName" class="form-control" value="<%= typeof schoolName !== 'undefined' ? schoolName : '' %>" required>
+    </div>
+    <div style="display: flex; justify-content: flex-end;">
+      <button type="submit" class="btn btn-primary">Simpan Nama Sekolah</button>
+    </div>
+  </form>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto; margin-bottom: 20px;">
+  <h2>Konfigurasi API WhatsApp</h2>
+  <form action="/admin/settings/whatsapp" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    
+    <div class="form-group">
+      <label class="form-label">Provider API</label>
+      <input type="text" name="providerName" class="form-control" value="<%= config?.providerName || '' %>" placeholder="Contoh: Fonnte, Wablas, dll">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">URL API Endpoint</label>
+      <input type="text" name="apiUrl" class="form-control" value="<%= config?.apiUrl || '' %>" placeholder="https://api.provider.com/send">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">API Key / Token</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="password" name="apiKey" id="apiKey" class="form-control" value="<%= config?.apiKey || '' %>">
+        <button type="button" class="btn btn-secondary" onclick="toggleApiKey()">Show</button>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Device ID / Session ID (Jika ada)</label>
+      <input type="text" name="deviceId" class="form-control" value="<%= config?.deviceId || '' %>">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Nomor Pengirim (Sender)</label>
+      <input type="text" name="senderNumber" class="form-control" value="<%= config?.senderNumber || '' %>">
+    </div>
+    
+    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+      <button type="button" class="btn btn-secondary" onclick="testConnection()">Test Koneksi</button>
+      <button type="submit" class="btn btn-primary">Simpan Konfigurasi WA</button>
+    </div>
+  </form>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+  <h2>Preview Template Pesan</h2>
+  <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50; font-family: monospace;">
+    Yth. Bapak/Ibu Wali dari [Nama Murid],<br><br>
+    Kami informasikan bahwa pada hari ini, [Tanggal], ananda tercatat:<br>
+    Status: <strong>[Status Kehadiran]</strong><br>
+    Mata Pelajaran: [Nama Mapel]<br>
+    Keterangan: [Keterangan jika ada]<br><br>
+    Mohon perhatiannya. Terima kasih.<br>
+    - <%= typeof schoolName !== 'undefined' ? schoolName : 'Sistem Absensi' %>
+  </div>
+</div>
+
+<script>
+function toggleApiKey() {
+  const input = document.getElementById('apiKey');
+  if (input.type === 'password') {
+    input.type = 'text';
+  } else {
+    input.type = 'password';
+  }
+}
+
+function testConnection() {
+  alert('Fitur test koneksi belum diimplementasikan di frontend ini. Silakan simpan konfigurasi dan cek log backend.');
+}
+</script>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

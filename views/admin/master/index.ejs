@@ -1,0 +1,467 @@
+<%
+  const activeTab = typeof tab !== 'undefined' ? tab : 'guru';
+  const guruList = (master && master.guru) ? master.guru : [];
+  const siswaList = (master && master.siswa) ? master.siswa : [];
+  const kelasList = (master && master.kelas) ? master.kelas : [];
+  const mapelList = (master && master.mapel) ? master.mapel : [];
+  const ortuList = (master && master.orangTua) ? master.orangTua : [];
+  const semesterList = (master && master.semester) ? master.semester : [];
+  const detailKelasList = (master && master.detailKelas) ? master.detailKelas : [];
+  const usersList = (master && master.users) ? master.users : [];
+
+  const tabClassActive = 'px-3.5 py-2 rounded-lg bg-[#005338] text-white font-label-md text-label-md shadow-sm inline-flex items-center gap-1.5';
+  const tabClassInactive = 'px-3.5 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-container-low font-label-md text-label-md transition-colors inline-flex items-center gap-1.5';
+
+  const tabLabelMap = {
+    guru: 'Data Guru',
+    siswa: 'Data Siswa',
+    kelas: 'Data Kelas & Wali',
+    mapel: 'Data Mata Pelajaran',
+    semester: 'Data Semester',
+    ortu: 'Data Orang Tua',
+    penugasan: 'Penugasan Guru Mapel',
+    users: 'Akun Pengguna'
+  };
+  const currentTabTitle = tabLabelMap[activeTab] || 'Data Master';
+%>
+<div class="flex flex-col w-full">
+  <div class="px-gutter-desktop py-space-lg flex flex-col gap-space-lg max-w-[1600px] mx-auto w-full">
+    <!-- Header Section -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+      <div class="flex flex-col gap-1">
+        <div class="inline-flex items-center gap-2">
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Administrasi Akademik</span>
+          <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-[#005338] font-bold"><%= currentTabTitle %></span>
+        </div>
+        <h1 class="font-headline-xl text-headline-xl text-text-primary tracking-tight">Manajemen <%= currentTabTitle %></h1>
+        <p class="font-body-md text-body-md text-text-secondary max-w-3xl">
+          Kelola basis data identitas pengguna, guru pengajar, peserta didik, orang tua, rombongan belajar, mata pelajaran, dan semester SMAN 1 Nusantara.
+        </p>
+      </div>
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-space-sm self-start lg:self-center">
+        <button onclick="document.getElementById('modal-tambah-master').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#005338] text-white font-label-md text-label-md shadow-sm hover:bg-[#003d29] transition-colors" type="button">
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          <span>Tambah <%= currentTabTitle %></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Tabs Bar (Tombol Terpisah) -->
+    <div class="bg-surface-container-lowest p-2 rounded-xl overflow-x-auto shadow-sm border border-slate-100">
+      <div class="flex items-center gap-2 overflow-x-auto">
+        <a href="/admin/master?tab=guru" class="<%= activeTab === 'guru' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">badge</span>
+          <span>Data Guru (<%= guruList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=siswa" class="<%= activeTab === 'siswa' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">groups</span>
+          <span>Data Siswa (<%= siswaList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=kelas" class="<%= activeTab === 'kelas' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">meeting_room</span>
+          <span>Data Kelas &amp; Wali (<%= kelasList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=mapel" class="<%= activeTab === 'mapel' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">menu_book</span>
+          <span>Data Mapel (<%= mapelList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=semester" class="<%= activeTab === 'semester' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">calendar_month</span>
+          <span>Data Semester (<%= semesterList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=ortu" class="<%= activeTab === 'ortu' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">family_restroom</span>
+          <span>Data Orang Tua (<%= ortuList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=penugasan" class="<%= activeTab === 'penugasan' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">assignment_ind</span>
+          <span>Penugasan Mapel (<%= detailKelasList.length %>)</span>
+        </a>
+        <a href="/admin/master?tab=users" class="<%= activeTab === 'users' ? tabClassActive : tabClassInactive %>">
+          <span class="material-symbols-outlined text-[17px]">manage_accounts</span>
+          <span>Data Akun (<%= usersList.length %>)</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter & Search Toolbar Card -->
+    <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-space-md">
+      <div class="relative flex-1 max-w-md">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-text-muted">search</span>
+        <input
+          id="master-search-input"
+          onkeyup="filterMasterTable()"
+          class="w-full h-10 pl-10 pr-4 rounded-lg bg-surface-container-low text-text-primary text-body-md font-body-md focus:outline-none focus:ring-2 focus:ring-[#005338] transition-all placeholder:text-text-muted"
+          placeholder="Cari pada tabel <%= currentTabTitle %>..."
+          type="text"
+        />
+      </div>
+      <div class="flex items-center gap-space-sm text-label-sm text-text-secondary">
+        <span>Modul Aktif: <strong class="text-[#005338] uppercase"><%= currentTabTitle %></strong></span>
+      </div>
+    </div>
+
+    <!-- Master Data Table Container -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+      <div class="overflow-x-auto">
+        <% if (activeTab === 'guru') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">Nama Guru &amp; NIP / NUPTK</th>
+                <th class="px-4 py-3 font-semibold">Bidang Keahlian</th>
+                <th class="px-4 py-3 font-semibold">Penugasan Wali Kelas</th>
+                <th class="px-4 py-3 font-semibold">Status Kepegawaian</th>
+                <th class="px-4 py-3 font-semibold">Kontak</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% guruList.forEach(function(g) {
+                const namaGuru = g.user ? g.user.nama : ('Guru #' + g.id_guru);
+                const initials = namaGuru.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+                const waliKls = kelasList.find(k => Number(k.id_wali_kelas) === Number(g.id_guru));
+              %>
+                <tr class="hover:bg-surface-container-low transition-colors group">
+                  <td class="px-4 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-emerald-100 text-[#005338] font-bold text-sm flex items-center justify-center shrink-0"><%= initials %></div>
+                      <div class="flex flex-col">
+                        <span class="font-headline-md text-[14px] text-text-primary font-semibold leading-tight group-hover:text-[#005338] transition-colors"><%= namaGuru %></span>
+                        <span class="font-numeric-table text-[12px] text-text-muted mt-0.5">NIP. <%= g.nip || '-' %> • NUPTK. <%= g.nuptk || '-' %></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3.5"><span class="font-medium text-text-primary"><%= g.bidang_keahlian || '-' %></span></td>
+                  <td class="px-4 py-3.5">
+                    <% if (waliKls) { %>
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-[#005338] font-label-sm text-label-sm font-semibold">
+                        <span class="material-symbols-outlined text-[14px]">shield_person</span>Wali <%= waliKls.nama.split('—')[0].trim() %>
+                      </span>
+                    <% } else { %>
+                      <span class="text-body-sm text-text-muted">Guru Mata Pelajaran</span>
+                    <% } %>
+                  </td>
+                  <td class="px-4 py-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-[#005338] font-label-sm text-label-sm font-semibold">
+                      <span class="material-symbols-outlined text-[14px]">check_circle</span><%= g.status_kepegawaian || 'Aktif' %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-3.5 text-body-sm text-text-secondary"><%= g.no_hp || '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else if (activeTab === 'siswa') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">NIS / NISN</th>
+                <th class="px-4 py-3 font-semibold">Nama Lengkap Siswa</th>
+                <th class="px-4 py-3 font-semibold">L/P</th>
+                <th class="px-4 py-3 font-semibold">Kelas Aktif</th>
+                <th class="px-4 py-3 font-semibold">Orang Tua / Wali</th>
+                <th class="px-4 py-3 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% siswaList.forEach(function(s) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5 font-numeric-table text-text-secondary"><%= s.nis %> / <%= s.nisn || '-' %></td>
+                  <td class="px-4 py-3.5 font-semibold text-text-primary"><%= s.nama %></td>
+                  <td class="px-4 py-3.5"><%= s.jenis_kelamin %></td>
+                  <td class="px-4 py-3.5"><%= s.kelas ? s.kelas.nama : '-' %></td>
+                  <td class="px-4 py-3.5"><%= s.orangTua ? s.orangTua.nama : '-' %></td>
+                  <td class="px-4 py-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-[#005338] font-label-sm text-label-sm font-semibold uppercase"><%= s.status %></span>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else if (activeTab === 'kelas') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">ID</th>
+                <th class="px-4 py-3 font-semibold">Nama Rombongan Belajar</th>
+                <th class="px-4 py-3 font-semibold">Tingkat</th>
+                <th class="px-4 py-3 font-semibold">Wali Kelas</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% kelasList.forEach(function(k) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5">#<%= k.id_kelas %></td>
+                  <td class="px-4 py-3.5 font-semibold"><%= k.nama %></td>
+                  <td class="px-4 py-3.5">Kelas <%= k.tingkat %></td>
+                  <td class="px-4 py-3.5"><%= (k.waliKelas && k.waliKelas.user) ? k.waliKelas.user.nama : '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else if (activeTab === 'mapel') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">Kode Mapel</th>
+                <th class="px-4 py-3 font-semibold">Nama Mata Pelajaran</th>
+                <th class="px-4 py-3 font-semibold">Kelompok Kurikulum</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% mapelList.forEach(function(m) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5 font-numeric-table font-bold text-[#005338]"><%= m.kode %></td>
+                  <td class="px-4 py-3.5 font-semibold"><%= m.nama %></td>
+                  <td class="px-4 py-3.5"><%= m.kelompok || '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else if (activeTab === 'ortu') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">Nama Orang Tua / Wali</th>
+                <th class="px-4 py-3 font-semibold">Email Notifikasi</th>
+                <th class="px-4 py-3 font-semibold">No. HP</th>
+                <th class="px-4 py-3 font-semibold">Anak Terhubung (1:M)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% ortuList.forEach(function(o) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5 font-semibold"><%= o.nama %></td>
+                  <td class="px-4 py-3.5"><%= o.email || '-' %></td>
+                  <td class="px-4 py-3.5"><%= o.no_hp || '-' %></td>
+                  <td class="px-4 py-3.5">
+                    <% if (o.anak && o.anak.length) { %>
+                      <%= o.anak.map(a => a.nama).join(', ') %>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else if (activeTab === 'semester') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">Tahun Ajaran</th>
+                <th class="px-4 py-3 font-semibold">Semester</th>
+                <th class="px-4 py-3 font-semibold">Periode</th>
+                <th class="px-4 py-3 font-semibold">Status Aktif</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% semesterList.forEach(function(sm) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5 font-semibold"><%= sm.tahun_ajaran %></td>
+                  <td class="px-4 py-3.5"><%= sm.semester %></td>
+                  <td class="px-4 py-3.5"><%= sm.mulai || '-' %> s.d. <%= sm.selesai || '-' %></td>
+                  <td class="px-4 py-3.5">
+                    <% if (Number(sm.aktif) === 1) { %>
+                      <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#005338] font-label-sm font-semibold">Semester Aktif</span>
+                    <% } else { %>
+                      <span class="text-text-muted">Arsip</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else if (activeTab === 'penugasan') { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">Kelas</th>
+                <th class="px-4 py-3 font-semibold">Mata Pelajaran</th>
+                <th class="px-4 py-3 font-semibold">Guru Pengampu</th>
+                <th class="px-4 py-3 font-semibold">Semester</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% detailKelasList.forEach(function(dk) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5 font-semibold"><%= dk.kelas ? dk.kelas.nama : '-' %></td>
+                  <td class="px-4 py-3.5"><%= dk.mataPelajaran ? dk.mataPelajaran.nama : '-' %></td>
+                  <td class="px-4 py-3.5"><%= (dk.guru && dk.guru.user) ? dk.guru.user.nama : '-' %></td>
+                  <td class="px-4 py-3.5"><%= dk.semester ? (dk.semester.semester + ' ' + dk.semester.tahun_ajaran) : '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <table id="master-data-table" class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low h-11 text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+                <th class="px-4 py-3 font-semibold">Nama Pengguna</th>
+                <th class="px-4 py-3 font-semibold">Email Login</th>
+                <th class="px-4 py-3 font-semibold">Role</th>
+                <th class="px-4 py-3 font-semibold">Status Akun</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
+              <% usersList.forEach(function(u) { %>
+                <tr class="hover:bg-surface-container-low transition-colors">
+                  <td class="px-4 py-3.5 font-semibold"><%= u.nama %></td>
+                  <td class="px-4 py-3.5"><%= u.email %></td>
+                  <td class="px-4 py-3.5"><span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-label-sm uppercase"><%= u.role %></span></td>
+                  <td class="px-4 py-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-[#005338] font-label-sm font-semibold">
+                      <%= u.status_aktif ? 'Aktif' : 'Nonaktif' %>
+                    </span>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tambah Data Sesuai Tab Aktif -->
+<div id="modal-tambah-master" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl space-y-4">
+    <div class="flex items-center justify-between border-b pb-3">
+      <h3 class="font-headline-md text-lg font-bold">Tambah <%= currentTabTitle %></h3>
+      <button type="button" onclick="document.getElementById('modal-tambah-master').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">✕</button>
+    </div>
+
+    <% if (activeTab === 'mapel') { %>
+      <form action="/mata-pelajaran" method="POST" class="space-y-3">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Kode Mata Pelajaran</label>
+          <input type="text" name="kode" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="Contoh: KIM, BIO, EKO" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Nama Mata Pelajaran</label>
+          <input type="text" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="Contoh: Kimia Peminatan" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Kelompok</label>
+          <input type="text" name="kelompok" class="w-full rounded-lg border-slate-300 text-sm" placeholder="Umum / MIPA / IPS" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="document.getElementById('modal-tambah-master').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-100 text-sm font-medium">Batal</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Simpan Mapel</button>
+        </div>
+      </form>
+    <% } else if (activeTab === 'semester') { %>
+      <form action="/semester" method="POST" class="space-y-3">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Tahun Ajaran</label>
+          <input type="text" name="tahun_ajaran" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="2026/2027" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Semester</label>
+          <select name="semester" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="Ganjil">Ganjil</option>
+            <option value="Genap">Genap</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold uppercase mb-1">Tanggal Mulai</label>
+            <input type="date" name="mulai" class="w-full rounded-lg border-slate-300 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase mb-1">Tanggal Selesai</label>
+            <input type="date" name="selesai" class="w-full rounded-lg border-slate-300 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Jadikan Semester Aktif?</label>
+          <select name="aktif" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="1">Ya (Aktifkan Semester Ini)</option>
+            <option value="0">Tidak (Simpan sebagai Arsip)</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="document.getElementById('modal-tambah-master').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-100 text-sm font-medium">Batal</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Simpan Semester</button>
+        </div>
+      </form>
+    <% } else if (activeTab === 'kelas') { %>
+      <form action="/kelas" method="POST" class="space-y-3">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Nama Kelas &amp; Tahun Ajaran</label>
+          <input type="text" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="XI IPA 1 — 2026/2027" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Tingkat</label>
+          <select name="tingkat" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="10">Kelas 10 (X)</option>
+            <option value="11">Kelas 11 (XI)</option>
+            <option value="12">Kelas 12 (XII)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Wali Kelas</label>
+          <select name="id_wali_kelas" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="">-- Pilih Guru Wali Kelas --</option>
+            <% guruList.forEach(function(g) { %>
+              <option value="<%= g.id_guru %>"><%= g.user ? g.user.nama : ('Guru #' + g.id_guru) %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="document.getElementById('modal-tambah-master').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-100 text-sm font-medium">Batal</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Simpan Kelas</button>
+        </div>
+      </form>
+    <% } else { %>
+      <form action="/users" method="POST" class="space-y-3">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
+          <input type="text" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="Nama lengkap pengguna" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Alamat Email</label>
+          <input type="email" name="email" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="nama@sekolah.sch.id" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Kata Sandi</label>
+          <input type="password" name="password" required class="w-full rounded-lg border-slate-300 text-sm" value="password123" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Peran (Role)</label>
+          <select name="role" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="guru">Guru (Wali Kelas / Guru Mapel)</option>
+            <option value="siswa">Siswa</option>
+            <option value="orang_tua">Orang Tua</option>
+            <option value="admin">Admin Sekolah</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="document.getElementById('modal-tambah-master').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-100 text-sm font-medium">Batal</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Simpan Data</button>
+        </div>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  function filterMasterTable() {
+    var input = document.getElementById('master-search-input');
+    var filter = (input.value || '').toLowerCase();
+    var table = document.getElementById('master-data-table');
+    if (!table) return;
+    var trs = table.getElementsByTagName('tr');
+    for (var i = 1; i < trs.length; i++) {
+      var text = (trs[i].textContent || trs[i].innerText || '').toLowerCase();
+      trs[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
+    }
+  }
+</script>

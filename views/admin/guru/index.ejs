@@ -1,0 +1,60 @@
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Kelola Data Guru</h2>
+    <a href="/admin/guru/create" class="btn btn-primary">+ Tambah Guru</a>
+  </div>
+
+  <form method="GET" action="" style="margin-bottom: 20px;">
+    <div class="form-group" style="display: flex; gap: 10px;">
+      <input type="text" name="search" class="form-control" placeholder="Cari NIP / Nama..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+      <button type="submit" class="btn btn-secondary">Cari</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>NIP</th>
+          <th>Nama</th>
+          <th>No. HP</th>
+          <th>Kelas Diajar</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (teachers && teachers.length > 0) { %>
+          <% teachers.forEach((g, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= g.nip %></td>
+            <td><%= g.nama %></td>
+            <td><%= g.nomor_hp %></td>
+            <td>
+              <% if(g.kelas && g.kelas.length > 0) { %>
+                <% g.kelas.forEach(k => { %><span class="badge badge-hadir"><%= k.nama_kelas %></span><% }) %>
+              <% } else { %> - <% } %>
+            </td>
+            <td>
+              <a href="/admin/guru/<%= g.id %>/edit" class="btn btn-secondary" style="padding: 4px 8px;">Edit</a>
+              <form action="/admin/guru/<%= g.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus guru ini?');">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-danger" style="padding: 4px 8px;">Hapus</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="6" style="text-align: center;">Tidak ada data.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <%- include('../../partials/pagination', { baseUrl: '/admin/guru', currentPage: currentPage || 1, totalPages: totalPages || 1 }) %>
+</div>
+
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+<script>document.addEventListener('DOMContentLoaded', () => showToast('<%= flash.message %>', '<%= flash.type %>'));</script>
+<% } %>

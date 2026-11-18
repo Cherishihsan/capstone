@@ -1,0 +1,118 @@
+<%
+  const kompList = typeof komponenList !== 'undefined' ? komponenList : [];
+  const siswaRows = typeof rows !== 'undefined' ? rows : [];
+  const totBobot = typeof totalBobot !== 'undefined' ? totalBobot : 100;
+  const klsId = typeof id_kelas !== 'undefined' ? id_kelas : 1;
+  const mplId = typeof id_mata_pelajaran !== 'undefined' ? id_mata_pelajaran : 1;
+  const semId = typeof id_semester !== 'undefined' ? id_semester : 1;
+%>
+<div class="flex flex-col w-full">
+  <div class="px-gutter-desktop py-space-lg space-y-space-lg max-w-7xl mx-auto w-full">
+    <!-- Header Halaman & Aksi -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider mb-1">
+          <span>Tahun Pelajaran 2026/2027</span>
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+          <span>Kurikulum Sekolah</span>
+        </div>
+        <h1 class="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight">Buku &amp; Grid Input Nilai</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+          Kelola penilaian komponen tugas, UTS, dan PAS berbasis bobot semester aktif (Rentang nilai valid: 0–100).
+        </p>
+      </div>
+      <div class="flex items-center flex-wrap gap-space-sm">
+        <a href="/laporan/nilai.xlsx?kelas=<%= klsId %>&mapel=<%= mplId %>&semester=<%= semId %>" class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-[18px] text-[#005338]">table_view</span>
+          <span>Ekspor Excel (.xlsx)</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Panel Banner Komponen & Bobot Penilaian -->
+    <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-slate-100 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#005338]"></div>
+      <div class="pl-space-sm flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-space-xs">
+            <span class="font-label-md text-label-md font-bold text-on-surface">Struktur Komponen Nilai Resmi:</span>
+            <% kompList.forEach(function(k, idx) { %>
+              <% if (idx > 0) { %><span class="text-on-surface-variant font-bold">•</span><% } %>
+              <span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-surface font-body-sm text-body-sm font-semibold">
+                <%= k.nama %>: <%= k.bobot %>%
+              </span>
+            <% }) %>
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#005338] font-label-sm text-label-sm font-bold ml-1">
+              <span class="material-symbols-outlined text-[14px]">check_circle</span> Total Bobot: <%= totBobot %>%
+            </span>
+          </div>
+          <p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px] text-[#005338]">info</span>
+            Rekap nilai akhir bersifat informatif dan tidak menggantikan dokumen raport resmi yang diunggah dalam format PDF.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Data Spreadsheet -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="overflow-x-auto w-full">
+        <table class="w-full border-collapse text-left">
+          <thead class="bg-surface-container-low text-on-surface font-label-sm text-label-sm uppercase tracking-wider">
+            <tr>
+              <th class="py-3 px-3 w-12 text-center font-bold">No</th>
+              <th class="py-3 px-3 w-32 font-bold">NIS</th>
+              <th class="py-3 px-3 min-w-[220px] font-bold">Nama Lengkap Siswa</th>
+              <% kompList.forEach(function(k) { %>
+                <th class="py-3 px-3 w-32 text-center bg-emerald-50/60 font-bold text-[#005338]">
+                  <%= k.nama %> <span class="font-normal">(<%= k.bobot %>%)</span>
+                </th>
+              <% }) %>
+              <th class="py-3 px-3 w-32 text-center font-bold">Nilai Akhir</th>
+              <th class="py-3 px-3 w-28 text-center font-bold">Status KKM (75)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-body-md text-body-md text-on-surface">
+            <% siswaRows.forEach(function(r, idx) {
+              const tuntas = r.nilai_akhir === null || Number(r.nilai_akhir) >= 75;
+            %>
+              <tr class="<%= !tuntas ? 'bg-red-50/40' : 'hover:bg-slate-50' %> transition-colors">
+                <td class="py-2.5 px-3 text-center font-numeric-table"><%= idx + 1 %></td>
+                <td class="py-2.5 px-3 font-numeric-table text-slate-600"><%= r.nis %></td>
+                <td class="py-2.5 px-3 font-semibold"><%= r.nama %></td>
+                <% kompList.forEach(function(k) {
+                  const val = r.nilai_komponen[k.id_komponen_nilai];
+                %>
+                  <td class="py-1.5 px-2 text-center">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value="<%= val !== null && val !== undefined ? val : '' %>"
+                      data-siswa="<%= r.id_siswa %>"
+                      data-komponen="<%= k.id_komponen_nilai %>"
+                      class="grade-cell-input w-20 h-8 text-center font-numeric-score font-bold bg-white border border-slate-200 focus:ring-2 focus:ring-[#005338] rounded"
+                    />
+                  </td>
+                <% }) %>
+                <td class="py-2.5 px-3 text-center font-numeric-score font-bold <%= !tuntas ? 'text-red-700' : 'text-[#005338]' %>">
+                  <%= r.nilai_akhir !== null ? r.nilai_akhir : '-' %>
+                </td>
+                <td class="py-2.5 px-3 text-center">
+                  <% if (r.nilai_akhir === null) { %>
+                    <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-label-sm">Belum Lengkap</span>
+                  <% } else if (tuntas) { %>
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#005338] font-label-sm font-bold">Tuntas</span>
+                  <% } else { %>
+                    <span class="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 font-label-sm font-bold">Remedial</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
