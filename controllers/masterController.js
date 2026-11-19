@@ -179,31 +179,111 @@ exports.createGuru = async (req, res) => {
       tanggal_masuk: req.body.tanggal_masuk || null,
       no_hp: req.body.no_hp || null
     });
-    return sendResponse(req, res, 201, { sukses: true, pesan: 'Data guru berhasil ditambahkan.', data: created }, '/admin/guru');
+    return sendResponse(req, res, 201, { sukses: true, pesan: 'Data guru berhasil ditambahkan.', data: created }, '/admin/master?tab=guru');
   } catch (err) {
-    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/guru');
+    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/master?tab=guru');
   }
 };
 
 exports.updateGuru = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const guru = await Guru.findByPk(req.params.id);
-    if (!guru) return sendResponse(req, res, 404, { sukses: false, pesan: 'Data guru tidak ditemukan.' });
-    await guru.update(req.body);
-    return sendResponse(req, res, 200, { sukses: true, pesan: 'Data guru berhasil diperbarui.', data: guru }, '/admin/guru');
+    const guru = await Guru.findByPk(req.params.id, {
+      include: [{ model: User, as: 'user' }],
+      transaction: t
+    });
+    if (!guru) {
+      await t.rollback();
+      return sendResponse(
+        req,
+        res,
+        404,
+        { sukses: false, pesan: 'Data guru tidak ditemukan.' },
+        '/admin/master?tab=guru'
+      );
+    }
+
+    await guru.update(
+      {
+        nuptk: req.body.nuptk ? String(req.body.nuptk).trim() : null,
+        nip: req.body.nip ? String(req.body.nip).trim() : null,
+        bidang_keahlian: req.body.bidang_keahlian ? String(req.body.bidang_keahlian).trim() : null,
+        status_kepegawaian: req.body.status_kepegawaian || null,
+        tanggal_masuk: req.body.tanggal_masuk || null,
+        no_hp: req.body.no_hp ? String(req.body.no_hp).trim() : null
+      },
+      { transaction: t }
+    );
+
+    if (guru.id_users) {
+      const userUpdates = {};
+      if (req.body.nama !== undefined && String(req.body.nama).trim() !== '') {
+        userUpdates.nama = String(req.body.nama).trim();
+      }
+      if (req.body.email !== undefined && String(req.body.email).trim() !== '') {
+        userUpdates.email = String(req.body.email).trim();
+      }
+      if (req.body.password && String(req.body.password).trim() !== '') {
+        userUpdates.password = bcrypt.hashSync(String(req.body.password), 10);
+      }
+      if (Object.keys(userUpdates).length > 0) {
+        await User.update(userUpdates, { where: { id_users: guru.id_users }, transaction: t });
+      }
+    }
+
+    await t.commit();
+    return sendResponse(
+      req,
+      res,
+      200,
+      { sukses: true, pesan: 'Data guru berhasil diperbarui.', data: guru },
+      '/admin/master?tab=guru'
+    );
   } catch (err) {
-    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/guru');
+    await t.rollback();
+    return sendResponse(
+      req,
+      res,
+      400,
+      { sukses: false, pesan: err.message },
+      '/admin/master?tab=guru'
+    );
   }
 };
 
 exports.deleteGuru = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const guru = await Guru.findByPk(req.params.id);
-    if (!guru) return sendResponse(req, res, 404, { sukses: false, pesan: 'Data guru tidak ditemukan.' });
-    await guru.destroy();
-    return sendResponse(req, res, 200, { sukses: true, pesan: 'Data guru berhasil dihapus.' }, '/admin/guru');
+    const guru = await Guru.findByPk(req.params.id, { transaction: t });
+    if (!guru) {
+      await t.rollback();
+      return sendResponse(
+        req,
+        res,
+        404,
+        { sukses: false, pesan: 'Data guru tidak ditemukan.' },
+        '/admin/master?tab=guru'
+      );
+    }
+
+    await guru.destroy({ transaction: t });
+    await t.commit();
+    return sendResponse(
+      req,
+      res,
+      200,
+      { sukses: true, pesan: 'Data guru berhasil dihapus.' },
+      '/admin/master?tab=guru'
+    );
   } catch (err) {
-    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/guru');
+    await t.rollback();
+    return sendResponse(
+      req,
+      res,
+      400,
+      { sukses: false, pesan: 'Gagal menghapus guru: ' + err.message },
+      '/admin/master?tab=guru'
+    );
   }
 };
 

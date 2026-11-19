@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
+const masterController = require('../controllers/masterController');
 const teacherController = require('../controllers/teacherController');
 const studentController = require('../controllers/studentController');
 const classController = require('../controllers/classController');
@@ -12,6 +13,11 @@ const whatsappController = require('../controllers/whatsappController');
 const settingsController = require('../controllers/settingsController');
 
 router.get('/dashboard', dashboardController.adminDashboard);
+
+// Master Page & Guru Edit/Delete
+router.get('/master', masterController.renderMasterPage);
+router.post('/master/guru/update/:id', masterController.updateGuru);
+router.post('/master/guru/delete/:id', masterController.deleteGuru);
 
 // Guru CRUD
 router.get('/guru', teacherController.index);

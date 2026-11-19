@@ -8,6 +8,7 @@
   const semesterList = (master && master.semester) ? master.semester : [];
   const detailKelasList = (master && master.detailKelas) ? master.detailKelas : [];
   const usersList = (master && master.users) ? master.users : [];
+  const csrfVal = typeof csrfToken !== 'undefined' ? csrfToken : '';
 
   const tabClassActive = 'px-3.5 py-2 rounded-lg bg-[#005338] text-white font-label-md text-label-md shadow-sm inline-flex items-center gap-1.5';
   const tabClassInactive = 'px-3.5 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-container-low font-label-md text-label-md transition-colors inline-flex items-center gap-1.5';
@@ -115,11 +116,13 @@
                 <th class="px-4 py-3 font-semibold">Penugasan Wali Kelas</th>
                 <th class="px-4 py-3 font-semibold">Status Kepegawaian</th>
                 <th class="px-4 py-3 font-semibold">Kontak</th>
+                <th class="px-4 py-3 font-semibold text-right">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
               <% guruList.forEach(function(g) {
                 const namaGuru = g.user ? g.user.nama : ('Guru #' + g.id_guru);
+                const emailGuru = g.user ? g.user.email : '';
                 const initials = namaGuru.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
                 const waliKls = kelasList.find(k => Number(k.id_wali_kelas) === Number(g.id_guru));
               %>
@@ -149,6 +152,44 @@
                     </span>
                   </td>
                   <td class="px-4 py-3.5 text-body-sm text-text-secondary"><%= g.no_hp || '-' %></td>
+                  <td class="px-4 py-3.5 text-right">
+                    <div class="inline-flex items-center justify-end gap-1.5">
+                      <button
+                        type="button"
+                        onclick="openEditGuruModal(this)"
+                        data-id-guru="<%= g.id_guru %>"
+                        data-id-users="<%= g.id_users %>"
+                        data-nama="<%= namaGuru %>"
+                        data-email="<%= emailGuru %>"
+                        data-nip="<%= g.nip || '' %>"
+                        data-nuptk="<%= g.nuptk || '' %>"
+                        data-bidang="<%= g.bidang_keahlian || '' %>"
+                        data-status="<%= g.status_kepegawaian || '' %>"
+                        data-tanggal-masuk="<%= g.tanggal_masuk || '' %>"
+                        data-no-hp="<%= g.no_hp || '' %>"
+                        class="px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                      >
+                        <span class="material-symbols-outlined text-[15px]">edit</span>
+                        <span>Edit</span>
+                      </button>
+
+                      <form
+                        action="/admin/master/guru/delete/<%= g.id_guru %>"
+                        method="POST"
+                        class="inline"
+                        onsubmit="return confirm('Yakin ingin menghapus data guru <%= namaGuru.replace(/'/g, '') %>?');"
+                      >
+                        <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
+                        <button
+                          type="submit"
+                          class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                        >
+                          <span class="material-symbols-outlined text-[15px]">delete</span>
+                          <span>Hapus</span>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
                 </tr>
               <% }) %>
             </tbody>
@@ -336,7 +377,7 @@
 
     <% if (activeTab === 'mapel') { %>
       <form action="/mata-pelajaran" method="POST" class="space-y-3">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
         <div>
           <label class="block text-xs font-bold uppercase mb-1">Kode Mata Pelajaran</label>
           <input type="text" name="kode" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="Contoh: KIM, BIO, EKO" />
@@ -356,7 +397,7 @@
       </form>
     <% } else if (activeTab === 'semester') { %>
       <form action="/semester" method="POST" class="space-y-3">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
         <div>
           <label class="block text-xs font-bold uppercase mb-1">Tahun Ajaran</label>
           <input type="text" name="tahun_ajaran" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="2026/2027" />
@@ -392,7 +433,7 @@
       </form>
     <% } else if (activeTab === 'kelas') { %>
       <form action="/kelas" method="POST" class="space-y-3">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
         <div>
           <label class="block text-xs font-bold uppercase mb-1">Nama Kelas &amp; Tahun Ajaran</label>
           <input type="text" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="XI IPA 1 — 2026/2027" />
@@ -421,7 +462,7 @@
       </form>
     <% } else { %>
       <form action="/users" method="POST" class="space-y-3">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
         <div>
           <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
           <input type="text" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" placeholder="Nama lengkap pengguna" />
@@ -452,6 +493,81 @@
   </div>
 </div>
 
+<!-- Modal Edit Data Guru -->
+<div id="modal-edit-guru" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl space-y-4">
+    <div class="flex items-center justify-between border-b pb-3">
+      <h3 class="font-headline-md text-lg font-bold">Edit Data Guru</h3>
+      <button type="button" onclick="closeEditGuruModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+    </div>
+
+    <form id="form-edit-guru" action="" method="POST" class="space-y-3">
+      <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
+      <input type="hidden" id="edit-guru-id-users" name="id_users" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
+          <input type="text" id="edit-guru-nama" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Email Akun</label>
+          <input type="email" id="edit-guru-email" name="email" required class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">NIP</label>
+          <input type="text" id="edit-guru-nip" name="nip" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">NUPTK (16 Digit)</label>
+          <input type="text" id="edit-guru-nuptk" name="nuptk" maxlength="16" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Bidang Keahlian</label>
+          <input type="text" id="edit-guru-bidang" name="bidang_keahlian" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Status Kepegawaian</label>
+          <select id="edit-guru-status" name="status_kepegawaian" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="">-- Pilih Status --</option>
+            <option value="PNS">PNS</option>
+            <option value="PPPK">PPPK</option>
+            <option value="GTT">GTT</option>
+            <option value="GTY">GTY</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Tanggal Masuk</label>
+          <input type="date" id="edit-guru-tanggal-masuk" name="tanggal_masuk" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">No. HP / Kontak</label>
+          <input type="text" id="edit-guru-no-hp" name="no_hp" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase mb-1">Password Baru (Opsional)</label>
+        <input type="password" id="edit-guru-password" name="password" class="w-full rounded-lg border-slate-300 text-sm" placeholder="Kosongkan jika tidak ingin mengubah password" />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button type="button" onclick="closeEditGuruModal()" class="px-4 py-2 rounded-lg bg-slate-100 text-sm font-medium">Batal</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   function filterMasterTable() {
     var input = document.getElementById('master-search-input');
@@ -463,5 +579,26 @@
       var text = (trs[i].textContent || trs[i].innerText || '').toLowerCase();
       trs[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
     }
+  }
+
+  function openEditGuruModal(btn) {
+    const idGuru = btn.dataset.idGuru;
+    document.getElementById('form-edit-guru').action = `/admin/master/guru/update/${idGuru}`;
+    document.getElementById('edit-guru-id-users').value = btn.dataset.idUsers || '';
+    document.getElementById('edit-guru-nama').value = btn.dataset.nama || '';
+    document.getElementById('edit-guru-email').value = btn.dataset.email || '';
+    document.getElementById('edit-guru-nip').value = btn.dataset.nip || '';
+    document.getElementById('edit-guru-nuptk').value = btn.dataset.nuptk || '';
+    document.getElementById('edit-guru-bidang').value = btn.dataset.bidang || '';
+    document.getElementById('edit-guru-status').value = btn.dataset.status || '';
+    document.getElementById('edit-guru-tanggal-masuk').value = btn.dataset.tanggalMasuk || '';
+    document.getElementById('edit-guru-no-hp').value = btn.dataset.noHp || '';
+    document.getElementById('edit-guru-password').value = '';
+
+    document.getElementById('modal-edit-guru').classList.remove('hidden');
+  }
+
+  function closeEditGuruModal() {
+    document.getElementById('modal-edit-guru').classList.add('hidden');
   }
 </script>
