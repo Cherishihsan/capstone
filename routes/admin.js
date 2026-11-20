@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const dashboardController = require('../controllers/dashboardController');
 const masterController = require('../controllers/masterController');
 const teacherController = require('../controllers/teacherController');
@@ -18,6 +19,15 @@ router.get('/dashboard', dashboardController.adminDashboard);
 router.get('/master', masterController.renderMasterPage);
 router.post('/master/guru/update/:id', masterController.updateGuru);
 router.post('/master/guru/delete/:id', masterController.deleteGuru);
+
+// Siswa Edit/Delete pada halaman Data Master
+router.post('/master/siswa/update/:id', masterController.updateSiswa);
+router.post('/master/siswa/delete/:id', masterController.deleteSiswa);
+
+// Orang Tua CRUD pada halaman Data Master
+router.post('/master/orang-tua', masterController.createOrangTua);
+router.post('/master/orang-tua/update/:id', masterController.updateOrangTua);
+router.post('/master/orang-tua/delete/:id', masterController.deleteOrangTua);
 
 // Guru CRUD
 router.get('/guru', teacherController.index);

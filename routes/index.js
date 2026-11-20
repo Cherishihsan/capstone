@@ -1,5 +1,7 @@
+
 const express = require('express');
 const router = express.Router();
+
 const authRoutes = require('./auth');
 const masterController = require('../controllers/masterController');
 const attendanceController = require('../controllers/attendanceController');
@@ -7,6 +9,7 @@ const gradeController = require('../controllers/gradeController');
 const raporController = require('../controllers/raporController');
 const portalController = require('../controllers/portalController');
 const { uploadRaporPdf } = require('../config/upload');
+
 const {
   isAuthenticated,
   isAdmin,
@@ -31,8 +34,50 @@ router.get('/', (req, res) => {
 // Kontrak API Bagian 11.1 — Data Master & Penugasan (FR-03, FR-04, FR-08)
 // ============================================================================
 
-// Halaman UI Manajemen Data Master Sekolah (Stitch Design)
-router.get('/admin/master', isAuthenticated, isAdmin, masterController.renderMasterPage);
+// Halaman UI Manajemen Data Master Sekolah
+router.get(
+  '/admin/master',
+  isAuthenticated,
+  isAdmin,
+  masterController.renderMasterPage
+);
+
+// CRUD Guru pada halaman Data Master
+router.post(
+  '/admin/master/guru/update/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.updateGuru
+);
+
+router.post(
+  '/admin/master/guru/delete/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.deleteGuru
+);
+
+// CRUD Orang Tua pada halaman Data Master
+router.post(
+  '/admin/master/orang-tua',
+  isAuthenticated,
+  isAdmin,
+  masterController.createOrangTua
+);
+
+router.post(
+  '/admin/master/orang-tua/update/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.updateOrangTua
+);
+
+router.post(
+  '/admin/master/orang-tua/delete/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.deleteOrangTua
+);
 
 // CRUD /users (Admin)
 router.get('/users', isAuthenticated, isAdmin, masterController.listUsers);
@@ -51,6 +96,21 @@ router.get('/kelas', isAuthenticated, requireRole('admin', 'guru'), masterContro
 router.post('/kelas', isAuthenticated, isAdmin, masterController.createKelas);
 router.put('/kelas/:id', isAuthenticated, isAdmin, masterController.updateKelas);
 router.delete('/kelas/:id', isAuthenticated, isAdmin, masterController.deleteKelas);
+
+// CRUD Siswa pada halaman Data Master
+router.post(
+  '/admin/master/siswa/update/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.updateSiswa
+);
+
+router.post(
+  '/admin/master/siswa/delete/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.deleteSiswa
+); 
 
 // CRUD /siswa (Admin)
 router.get('/siswa', isAuthenticated, isAdmin, masterController.listSiswa);
@@ -77,24 +137,82 @@ router.put('/semester/:id', isAuthenticated, isAdmin, masterController.updateSem
 router.delete('/semester/:id', isAuthenticated, isAdmin, masterController.deleteSemester);
 
 // CRUD /komponen-nilai (Admin, Guru)
-router.get('/komponen-nilai', isAuthenticated, requireRole('admin', 'guru'), masterController.listKomponenNilai);
-router.post('/komponen-nilai', isAuthenticated, requireRole('admin', 'guru'), masterController.saveKomponenNilai);
-router.put('/komponen-nilai/:id', isAuthenticated, requireRole('admin', 'guru'), masterController.saveKomponenNilai);
-router.delete('/komponen-nilai/:id', isAuthenticated, requireRole('admin', 'guru'), masterController.deleteKomponenNilai);
+router.get(
+  '/komponen-nilai',
+  isAuthenticated,
+  requireRole('admin', 'guru'),
+  masterController.listKomponenNilai
+);
+
+router.post(
+  '/komponen-nilai',
+  isAuthenticated,
+  requireRole('admin', 'guru'),
+  masterController.saveKomponenNilai
+);
+
+router.put(
+  '/komponen-nilai/:id',
+  isAuthenticated,
+  requireRole('admin', 'guru'),
+  masterController.saveKomponenNilai
+);
+
+router.delete(
+  '/komponen-nilai/:id',
+  isAuthenticated,
+  requireRole('admin', 'guru'),
+  masterController.deleteKomponenNilai
+);
 
 // CRUD /detail-kelas (Admin; Guru boleh lihat penugasan)
-router.get('/detail-kelas', isAuthenticated, requireRole('admin', 'guru'), masterController.listDetailKelas);
-router.post('/detail-kelas', isAuthenticated, isAdmin, masterController.createDetailKelas);
-router.put('/detail-kelas/:id', isAuthenticated, isAdmin, masterController.updateDetailKelas);
-router.delete('/detail-kelas/:id', isAuthenticated, isAdmin, masterController.deleteDetailKelas);
+router.get(
+  '/detail-kelas',
+  isAuthenticated,
+  requireRole('admin', 'guru'),
+  masterController.listDetailKelas
+);
+
+router.post(
+  '/detail-kelas',
+  isAuthenticated,
+  isAdmin,
+  masterController.createDetailKelas
+);
+
+router.put(
+  '/detail-kelas/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.updateDetailKelas
+);
+
+router.delete(
+  '/detail-kelas/:id',
+  isAuthenticated,
+  isAdmin,
+  masterController.deleteDetailKelas
+);
 
 // ============================================================================
 // Kontrak API Bagian 11.2 — Absensi, Nilai, Raport, Portal, Dashboard & Laporan
 // ============================================================================
 
 // Absensi Harian & Rekap (FR-05, FR-06, AC-01..AC-03)
-router.get('/absensi', isAuthenticated, requireWaliKelas(true), attendanceController.getAbsensi);
-router.post('/absensi', isAuthenticated, requireWaliKelas(false), attendanceController.postAbsensi);
+router.get(
+  '/absensi',
+  isAuthenticated,
+  requireWaliKelas(true),
+  attendanceController.getAbsensi
+);
+
+router.post(
+  '/absensi',
+  isAuthenticated,
+  requireWaliKelas(false),
+  attendanceController.postAbsensi
+);
+
 router.get(
   '/absensi/rekap',
   isAuthenticated,
@@ -109,12 +227,14 @@ router.get(
   requireGuruMapelAssignment(true),
   gradeController.getNilaiGrid
 );
+
 router.post(
   '/nilai',
   isAuthenticated,
   requireGuruMapelAssignment(false),
   gradeController.postNilai
 );
+
 router.get(
   '/nilai/rekap',
   isAuthenticated,
@@ -129,6 +249,7 @@ router.get(
   requireWaliKelas(true),
   raporController.monitoringRapor
 );
+
 router.post(
   '/rapor',
   isAuthenticated,
@@ -146,22 +267,31 @@ router.post(
   },
   raporController.uploadRapor
 );
+
 router.get(
   '/rapor',
   isAuthenticated,
   requireRole('admin', 'guru', 'siswa', 'orang_tua'),
   raporController.listRapor
 );
+
 router.get(
   '/rapor/:id/unduh',
   isAuthenticated,
   requireRole('admin', 'guru', 'siswa', 'orang_tua'),
   raporController.downloadRapor
 );
+
 router.delete('/rapor/:id', isAuthenticated, isAdmin, raporController.deleteRapor);
 
 // Portal Siswa & Orang Tua (FR-13, AC-08)
-router.get('/portal/anak', isAuthenticated, requireRole('orang_tua'), portalController.getDaftarAnak);
+router.get(
+  '/portal/anak',
+  isAuthenticated,
+  requireRole('orang_tua'),
+  portalController.getDaftarAnak
+);
+
 router.get(
   '/portal/siswa/:id',
   isAuthenticated,
@@ -180,6 +310,7 @@ router.get(
   requireRole('admin', 'guru'),
   portalController.exportAbsensiExcel
 );
+
 router.get(
   '/laporan/nilai.xlsx',
   isAuthenticated,

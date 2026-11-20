@@ -106,23 +106,73 @@ exports.listUsers = async (req, res) => {
   return res.json({ sukses: true, data });
 };
 
+
 exports.createUser = async (req, res) => {
   try {
-    const { nama, email, password, role, status_aktif } = req.body;
-    const created = await User.create({
+    const {
       nama,
       email,
-      password: bcrypt.hashSync(String(password || '123456'), 10),
+      password,
       role,
-      status_aktif: status_aktif !== undefined ? Number(status_aktif) : 1
+      status_aktif,
+      nip,
+      nuptk,
+      bidang_keahlian,
+      status_kepegawaian,
+      tanggal_masuk,
+      no_hp
+    } = req.body;
+
+    await sequelize.transaction(async (t) => {
+      // 1. Membuat akun pengguna
+      const created = await User.create({
+        nama,
+        email,
+        password: bcrypt.hashSync(String(password || '123456'), 10),
+        role,
+        status_aktif: status_aktif !== undefined
+          ? Number(status_aktif)
+          : 1
+      }, { transaction: t });
+
+      // 2. Jika role guru, buat profil guru juga
+      if (role === 'guru') {
+        await Guru.create({
+          id_users: created.id_users,
+          nip: nip || null,
+          nuptk: nuptk || null,
+          bidang_keahlian: bidang_keahlian || null,
+          status_kepegawaian: status_kepegawaian || null,
+          tanggal_masuk: tanggal_masuk || null,
+          no_hp: no_hp || null
+        }, { transaction: t });
+      }
     });
-    const out = created.toJSON();
-    delete out.password;
-    return sendResponse(req, res, 201, { sukses: true, pesan: 'Akun pengguna berhasil dibuat.', data: out }, '/admin/master');
+
+    return sendResponse(
+      req,
+      res,
+      201,
+      {
+        sukses: true,
+        pesan: role === 'guru'
+          ? 'Akun dan data guru berhasil dibuat.'
+          : 'Akun pengguna berhasil dibuat.'
+      },
+      role === 'guru' ? '/admin/master?tab=guru' : '/admin/master'
+    );
+
   } catch (err) {
-    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/master');
+    return sendResponse(
+      req,
+      res,
+      400,
+      { sukses: false, pesan: err.message },
+      '/admin/master'
+    );
   }
 };
+
 
 exports.updateUser = async (req, res) => {
   try {
@@ -386,22 +436,117 @@ exports.createSiswa = async (req, res) => {
 exports.updateSiswa = async (req, res) => {
   try {
     const siswa = await Siswa.findByPk(req.params.id);
-    if (!siswa) return sendResponse(req, res, 404, { sukses: false, pesan: 'Data siswa tidak ditemukan.' });
-    await siswa.update(req.body);
-    return sendResponse(req, res, 200, { sukses: true, pesan: 'Data siswa berhasil diperbarui.', data: siswa }, '/admin/siswa');
+
+    if (!siswa) {
+      return sendResponse(
+        req,
+        res,
+        404,
+        {
+          sukses: false,
+          pesan: 'Data siswa tidak ditemukan.'
+        },
+        '/admin/master?tab=siswa'
+      );
+    }
+
+    await siswa.update({
+      nis: req.body.nis !== undefined
+        ? String(req.body.nis).trim()
+        : siswa.nis,
+
+      nisn: req.body.nisn !== undefined
+        ? (String(req.body.nisn).trim() || null)
+        : siswa.nisn,
+
+      nama: req.body.nama !== undefined
+        ? String(req.body.nama).trim()
+        : siswa.nama,
+
+      jenis_kelamin: req.body.jenis_kelamin ?? siswa.jenis_kelamin,
+
+      tanggal_lahir: req.body.tanggal_lahir !== undefined
+        ? (req.body.tanggal_lahir || null)
+        : siswa.tanggal_lahir,
+
+      id_kelas: req.body.id_kelas !== undefined
+        ? Number(req.body.id_kelas)
+        : siswa.id_kelas,
+
+      id_orang_tua: req.body.id_orang_tua !== undefined
+        ? (req.body.id_orang_tua ? Number(req.body.id_orang_tua) : null)
+        : siswa.id_orang_tua,
+
+      status: req.body.status ?? siswa.status
+    });
+
+    return sendResponse(
+      req,
+      res,
+      200,
+      {
+        sukses: true,
+        pesan: 'Data siswa berhasil diperbarui.',
+        data: siswa
+      },
+      '/admin/master?tab=siswa'
+    );
+
   } catch (err) {
-    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/siswa');
+    return sendResponse(
+      req,
+      res,
+      400,
+      {
+        sukses: false,
+        pesan: err.message
+      },
+      '/admin/master?tab=siswa'
+    );
   }
 };
 
 exports.deleteSiswa = async (req, res) => {
   try {
     const siswa = await Siswa.findByPk(req.params.id);
-    if (!siswa) return sendResponse(req, res, 404, { sukses: false, pesan: 'Data siswa tidak ditemukan.' });
+
+    if (!siswa) {
+      return sendResponse(
+        req,
+        res,
+        404,
+        {
+          sukses: false,
+          pesan: 'Data siswa tidak ditemukan.'
+        },
+        '/admin/master?tab=siswa'
+      );
+    }
+
     await siswa.destroy();
-    return sendResponse(req, res, 200, { sukses: true, pesan: 'Data siswa berhasil dihapus.' }, '/admin/siswa');
+
+    return sendResponse(
+      req,
+      res,
+      200,
+      {
+        sukses: true,
+        pesan: 'Data siswa berhasil dihapus.'
+      },
+      '/admin/master?tab=siswa'
+    );
+
   } catch (err) {
-    return sendResponse(req, res, 400, { sukses: false, pesan: err.message }, '/admin/siswa');
+    return sendResponse(
+      req,
+      res,
+      400,
+      {
+        sukses: false,
+        pesan: 'Gagal menghapus data siswa: ' + err.message
+      },
+      '/admin/master?tab=siswa'
+    );
   }
 };
 

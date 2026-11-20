@@ -204,6 +204,7 @@
                 <th class="px-4 py-3 font-semibold">Kelas Aktif</th>
                 <th class="px-4 py-3 font-semibold">Orang Tua / Wali</th>
                 <th class="px-4 py-3 font-semibold">Status</th>
+                <th class="px-4 py-3 font-semibold text-right">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-surface-container-low text-body-md font-body-md text-text-primary">
@@ -216,6 +217,42 @@
                   <td class="px-4 py-3.5"><%= s.orangTua ? s.orangTua.nama : '-' %></td>
                   <td class="px-4 py-3.5">
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-[#005338] font-label-sm text-label-sm font-semibold uppercase"><%= s.status %></span>
+                  </td>
+                  <td class="px-4 py-3.5 text-right">
+                    <div class="inline-flex items-center justify-end gap-1.5">
+                      <button
+                        type="button"
+                        onclick="openEditSiswaModal(this)"
+                        data-id-siswa="<%= s.id_siswa %>"
+                        data-nis="<%= s.nis || '' %>"
+                        data-nisn="<%= s.nisn || '' %>"
+                        data-nama="<%= s.nama || '' %>"
+                        data-jenis-kelamin="<%= s.jenis_kelamin || '' %>"
+                        data-tanggal-lahir="<%= s.tanggal_lahir ? String(s.tanggal_lahir).slice(0, 10) : '' %>"
+                        data-id-kelas="<%= s.id_kelas || '' %>"
+                        data-id-orang-tua="<%= s.id_orang_tua || '' %>"
+                        data-status="<%= s.status || '' %>"
+                        class="px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                      >
+                        <span class="material-symbols-outlined text-[15px]">edit</span>
+                        <span>Edit</span>
+                      </button>
+                      <form
+                        action="/admin/master/siswa/delete/<%= s.id_siswa %>"
+                        method="POST"
+                        class="inline"
+                        onsubmit="return confirm('Yakin ingin menghapus data siswa <%= String(s.nama || '').replace(/'/g, '') %>?');"
+                      >
+                        <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
+                        <button
+                          type="submit"
+                          class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                        >
+                          <span class="material-symbols-outlined text-[15px]">delete</span>
+                          <span>Hapus</span>
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               <% }) %>
@@ -493,6 +530,82 @@
   </div>
 </div>
 
+<!-- Modal Edit Data Siswa -->
+<div id="modal-edit-siswa" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-xl max-w-2xl w-full p-6 shadow-xl space-y-4 my-6">
+    <div class="flex items-center justify-between border-b pb-3">
+      <h3 class="font-headline-md text-lg font-bold">Edit Data Siswa</h3>
+      <button type="button" onclick="closeEditSiswaModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+    </div>
+
+    <form id="form-edit-siswa" action="" method="POST" class="space-y-3">
+      <input type="hidden" name="_csrf" value="<%= csrfVal %>" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">NIS</label>
+          <input type="text" id="edit-siswa-nis" name="nis" required class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">NISN</label>
+          <input type="text" id="edit-siswa-nisn" name="nisn" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap</label>
+        <input type="text" id="edit-siswa-nama" name="nama" required class="w-full rounded-lg border-slate-300 text-sm" />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Jenis Kelamin</label>
+          <select id="edit-siswa-jenis-kelamin" name="jenis_kelamin" required class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="">-- Pilih Jenis Kelamin --</option>
+            <option value="L">Laki-laki (L)</option>
+            <option value="P">Perempuan (P)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Tanggal Lahir</label>
+          <input type="date" id="edit-siswa-tanggal-lahir" name="tanggal_lahir" class="w-full rounded-lg border-slate-300 text-sm" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Kelas</label>
+          <select id="edit-siswa-id-kelas" name="id_kelas" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="">-- Pilih Kelas --</option>
+            <% kelasList.forEach(function(k) { %>
+              <option value="<%= k.id_kelas %>"><%= k.nama %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase mb-1">Orang Tua / Wali</label>
+          <select id="edit-siswa-id-orang-tua" name="id_orang_tua" class="w-full rounded-lg border-slate-300 text-sm">
+            <option value="">-- Pilih Orang Tua / Wali --</option>
+            <% ortuList.forEach(function(o) { %>
+              <option value="<%= o.id_orang_tua %>"><%= o.nama %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase mb-1">Status</label>
+        <input type="text" id="edit-siswa-status" name="status" required class="w-full rounded-lg border-slate-300 text-sm" />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button type="button" onclick="closeEditSiswaModal()" class="px-4 py-2 rounded-lg bg-slate-100 text-sm font-medium">Batal</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-[#005338] text-white text-sm font-semibold">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Modal Edit Data Guru -->
 <div id="modal-edit-guru" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
   <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl space-y-4">
@@ -579,6 +692,24 @@
       var text = (trs[i].textContent || trs[i].innerText || '').toLowerCase();
       trs[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
     }
+  }
+
+  function openEditSiswaModal(btn) {
+    const idSiswa = btn.dataset.idSiswa;
+    document.getElementById('form-edit-siswa').action = `/admin/master/siswa/update/${idSiswa}`;
+    document.getElementById('edit-siswa-nis').value = btn.dataset.nis || '';
+    document.getElementById('edit-siswa-nisn').value = btn.dataset.nisn || '';
+    document.getElementById('edit-siswa-nama').value = btn.dataset.nama || '';
+    document.getElementById('edit-siswa-jenis-kelamin').value = btn.dataset.jenisKelamin || '';
+    document.getElementById('edit-siswa-tanggal-lahir').value = btn.dataset.tanggalLahir || '';
+    document.getElementById('edit-siswa-id-kelas').value = btn.dataset.idKelas || '';
+    document.getElementById('edit-siswa-id-orang-tua').value = btn.dataset.idOrangTua || '';
+    document.getElementById('edit-siswa-status').value = btn.dataset.status || '';
+    document.getElementById('modal-edit-siswa').classList.remove('hidden');
+  }
+
+  function closeEditSiswaModal() {
+    document.getElementById('modal-edit-siswa').classList.add('hidden');
   }
 
   function openEditGuruModal(btn) {
